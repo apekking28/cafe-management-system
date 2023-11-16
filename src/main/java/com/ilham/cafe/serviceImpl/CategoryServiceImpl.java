@@ -30,7 +30,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
-        System.out.println("king");
         try {
             if (jwtFilter.isAdmin()) {
                 if (validateCategoryMap(requestMap, false)) {
@@ -53,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
                 log.info("Inside If");
                 return new ResponseEntity<List<Category>>(categoryDao.getAllCategory(), HttpStatus.OK);
             }
-            return new ResponseEntity<>(categoryDao.getAllCategory(), HttpStatus.OK);
+            return new ResponseEntity<>(categoryDao.findAll(), HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
