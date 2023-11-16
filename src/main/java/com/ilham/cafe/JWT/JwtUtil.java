@@ -6,8 +6,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,21 +17,17 @@ public class JwtUtil {
     private String secret = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
     public String extractUsername(String token) {
-        return extractClaims(token,Claims::getSubject);
+        return extractClaims(token, Claims::getSubject);
     }
 
-    public Date extractExpiration (String token) {
-        return extractClaims(token,Claims::getExpiration);
+    public Date extractExpiration(String token) {
+        return extractClaims(token, Claims::getExpiration);
     }
 
-    public <T> T extractClaims(String token, Function<Claims,T> claimsResolver) {
+    public <T> T extractClaims(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-//
-//    public Claims extractAllClaims(String token) {
-//        return Jwts.parser().setSigningKey(secret).parseClaimsJwt(token).getBody();
-//    }
 
     public Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
@@ -44,18 +38,18 @@ public class JwtUtil {
     }
 
     public String generateToken(String username, String role) {
-        Map<String,Object> claims = new HashMap<>();
-        claims.put("role",role);
-        return createToken(claims,username);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        return createToken(claims, username);
     }
 
-    private String createToken(Map<String,Object> claims, String subject) {
+    private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256,secret).compact();
+                .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
