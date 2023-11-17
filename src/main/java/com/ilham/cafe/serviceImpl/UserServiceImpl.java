@@ -1,5 +1,6 @@
 package com.ilham.cafe.serviceImpl;
 
+import com.google.common.base.Strings;
 import com.ilham.cafe.JWT.CustomerUserDetailsService;
 import com.ilham.cafe.JWT.JwtFilter;
 import com.ilham.cafe.JWT.JwtUtil;
@@ -79,29 +80,29 @@ public class UserServiceImpl implements UserService {
                                     customerUserDetailsService.getUserDetail().getRole()) + "\"}",
                             HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<String>("{\"message:\""+"Wait for admin approval\"}",HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<String>("{\"message:\"" + "Wait for admin approval\"}", HttpStatus.BAD_REQUEST);
                 }
             }
         } catch (Exception ex) {
             log.error("{}", ex);
         }
-        return new ResponseEntity<String>("{\"message:\""+"Bad Credentials.\"}",
+        return new ResponseEntity<String>("{\"message:\"" + "Bad Credentials.\"}",
                 HttpStatus.BAD_REQUEST);
     }
 
     @Override
     public ResponseEntity<List<UserWrapper>> getAllUser() {
         try {
-            if(jwtFilter.isAdmin()) {
-                return new ResponseEntity<>(userDao.getAllUser(),HttpStatus.OK);
-            }else {
-                return new ResponseEntity<>(new ArrayList<>(),HttpStatus.UNAUTHORIZED);
+            if (jwtFilter.isAdmin()) {
+                return new ResponseEntity<>(userDao.getAllUser(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -109,29 +110,68 @@ public class UserServiceImpl implements UserService {
         try {
             if (jwtFilter.isAdmin()) {
                 Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
-                if(!optional.isEmpty()) {
-                    userDao.updateStatus(requestMap.get("status"),Integer.parseInt(requestMap.get("id")));
-                    sendEmailToAllAdmin(requestMap.get("status"),optional.get().getEmail(), userDao.getAllAdmin());
-                    return CafeUtils.getResponseEntity("User Status Updated Successfully",HttpStatus.OK);
+                if (!optional.isEmpty()) {
+                    userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
+                    sendEmailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userDao.getAllAdmin());
+                    return CafeUtils.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
                 } else {
-                    return CafeUtils.getResponseEntity("User id doesnt not exist",HttpStatus.OK);
+                    return CafeUtils.getResponseEntity("User id doesnt not exist", HttpStatus.OK);
                 }
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS,HttpStatus.UNAUTHORIZED);
+                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>(CafeConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
 
+    }
+
+    @Override
+    public ResponseEntity<String> checkToken() {
+        return CafeUtils.getResponseEntity("true", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
+        try {
+            User userObj = userDao.findByEmail(jwtFilter.getCurrentUser());
+            if (!userObj.equals(null)) {
+                if (userObj.getPassword().equals(requestMap.get("oldPassword"))) {
+                    userObj.setPassword(requestMap.get("newPassword"));
+                    userDao.save(userObj);
+                    return CafeUtils.getResponseEntity("Password Updated Successfully", HttpStatus.OK);
+                }
+                return CafeUtils.getResponseEntity("Incorrect Old Password", HttpStatus.BAD_REQUEST);
+            }
+            return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+        try {
+            User user = userDao.findByEmail(requestMap.get("email"));
+            if (!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail())) {
+                System.out.println(user);
+                emailUtils.forgotMail(user.getEmail(), "Credentials by Cafe Management System", user.getPassword());
+                return CafeUtils.getResponseEntity("Check your mail for Credentials.", HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void sendEmailToAllAdmin(String status, String user, List<String> allAdmin) {
         allAdmin.remove(jwtFilter.getCurrentUser());
         if (status != null && status.equalsIgnoreCase("true")) {
-            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(),"Account Approved","USER:- " + user + " \n is approved by \nADMIN:-" + jwtFilter.getCurrentUser(),allAdmin);
+            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved", "USER:- " + user + " \n is approved by \nADMIN:-" + jwtFilter.getCurrentUser(), allAdmin);
         } else {
-            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(),"Account Disabled","USER:- " + user + " \n is disabled by \nADMIN:-" + jwtFilter.getCurrentUser(),allAdmin);
+            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Disabled", "USER:- " + user + " \n is disabled by \nADMIN:-" + jwtFilter.getCurrentUser(), allAdmin);
         }
     }
 

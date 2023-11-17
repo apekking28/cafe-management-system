@@ -1,10 +1,10 @@
 package com.ilham.cafe.restImpl;
 
 import com.ilham.cafe.constents.CafeConstants;
-import com.ilham.cafe.rest.UserRest;
-import com.ilham.cafe.service.UserService;
+import com.ilham.cafe.rest.ProductRest;
+import com.ilham.cafe.service.ProductService;
 import com.ilham.cafe.utils.CafeUtils;
-import com.ilham.cafe.wrapper.UserWrapper;
+import com.ilham.cafe.wrapper.ProductWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class UserRestImpl implements UserRest {
+public class ProductRestImpl implements ProductRest {
 
     @Autowired
-    UserService userService;
+    ProductService productService;
 
     @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
+    public ResponseEntity<String> addNewProduct(Map<String, String> requestMap) {
         try {
-            return userService.signUp(requestMap);
+            return productService.addNewProduct(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -31,9 +31,19 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
+    public ResponseEntity<List<ProductWrapper>> getAllProduct() {
         try {
-            return userService.login(requestMap);
+            return productService.getAllProduct();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> updateProdduct(Map<String, String> requestMap) {
+        try {
+            return productService.updateProdduct(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -41,19 +51,9 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
-    public ResponseEntity<List<UserWrapper>> getAllUser() {
+    public ResponseEntity<String> deleteProduct(Integer id) {
         try {
-            return userService.getAllUser();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Override
-    public ResponseEntity<String> update(Map<String, String> requestMap) {
-        try {
-            return userService.update(requestMap);
+            return productService.deleteProdut(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -61,9 +61,9 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
-    public ResponseEntity<String> checkToken() {
+    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
         try {
-            return userService.checkToken();
+            return productService.updateStatus(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -71,24 +71,22 @@ public class UserRestImpl implements UserRest {
     }
 
     @Override
-    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
+    public ResponseEntity<List<ProductWrapper>> getByCategory(Integer id) {
         try {
-            return userService.changePassword(requestMap);
+            return productService.getByCategory(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+    public ResponseEntity<ProductWrapper> getProductById(Integer id) {
         try {
-            return userService.forgotPassword(requestMap);
+            return productService.getProductById(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ProductWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-
 }
