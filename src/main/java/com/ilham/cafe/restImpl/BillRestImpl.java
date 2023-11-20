@@ -1,5 +1,6 @@
 package com.ilham.cafe.restImpl;
 
+import com.ilham.cafe.POJO.Bill;
 import com.ilham.cafe.constents.CafeConstants;
 import com.ilham.cafe.rest.BillRest;
 import com.ilham.cafe.service.BillService;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,7 +23,37 @@ public class BillRestImpl implements BillRest {
     @Override
     public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
         try {
-            billService.generateReport(requestMap);
+            return billService.generateReport(requestMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<Bill>> getBills() {
+        try {
+           return billService.getBills();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<List<Bill>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap) {
+        try {
+            return billService.getPdf(requestMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<String> deleteBill(Integer id) {
+        try {
+            return billService.deleteBill(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
