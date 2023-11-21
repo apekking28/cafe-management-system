@@ -11,8 +11,8 @@ import java.io.Serializable;
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "user")
-public class User implements Serializable {
+@Table(name = "bill")
+public class Bill implements Serializable {
 
     private static final Long serialVersionUID = 1L;
 
@@ -21,22 +21,28 @@ public class User implements Serializable {
     @Column(name = "id")
     private Integer id;
 
+    @Column(name = "uuid")
+    private String uuid;
+
     @Column(name = "name")
     private String name;
-
-    @Column(name = "contactNumber")
-    private String contactNumber;
 
     @Column(name = "email")
     private String email;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "contactNumber")
+    private String contactNumber;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "paymentMethod")
+    private String paymentMethod;
 
-    @Column(name = "role")
-    private String role;
+    @Column(name = "total")
+    private Integer total;
+
+    @Column(name = "productDetails", columnDefinition = "json")
+    private String productDetails;
+
+    @Column(name = "createdBy")
+    private String createdBy;
 
 }

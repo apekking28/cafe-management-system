@@ -3,8 +3,9 @@ package com.ilham.cafe.serviceImpl;
 import com.google.common.base.Strings;
 import com.ilham.cafe.JWT.JwtFilter;
 import com.ilham.cafe.POJO.Category;
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
 import com.ilham.cafe.dao.CategoryDao;
+import com.ilham.cafe.dto.CategoryResponseDTO;
 import com.ilham.cafe.service.CategoryService;
 import com.ilham.cafe.utils.CafeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,20 +30,20 @@ public class CategoryServiceImpl implements CategoryService {
     JwtFilter jwtFilter;
 
     @Override
-    public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
+    public ResponseEntity<CategoryResponseDTO> addNewCategory(Map<String, String> requestMap) {
         try {
             if (jwtFilter.isAdmin()) {
                 if (validateCategoryMap(requestMap, false)) {
                     categoryDao.save(getCategoryFromMap(requestMap, false));
-                    return CafeUtils.getResponseEntity("Category Added Successfully", HttpStatus.OK);
+                    return new ResponseEntity<>(new CategoryResponseDTO("Category Added Successfully"), HttpStatus.OK);
                 }
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.UNAUTHORIZED_ACCESS), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -60,26 +61,26 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseEntity<String> updateCategory(Map<String, String> requestMap) {
+    public ResponseEntity<CategoryResponseDTO> updateCategory(Map<String, String> requestMap) {
         try {
             if (jwtFilter.isAdmin()) {
                 if (validateCategoryMap(requestMap, true)) {
                     Optional<Category> optional = categoryDao.findById(Integer.parseInt(requestMap.get("id")));
                     if (!optional.isEmpty()) {
                         categoryDao.save(getCategoryFromMap(requestMap, true));
-                        return CafeUtils.getResponseEntity("Category Updated Successfully", HttpStatus.OK);
+                        return new ResponseEntity<>(new CategoryResponseDTO("Category Updated Successfully"), HttpStatus.OK);
                     } else {
-                        return CafeUtils.getResponseEntity("Category id does not exist", HttpStatus.OK);
+                        return new ResponseEntity<>(new CategoryResponseDTO("Category id does not exist"), HttpStatus.BAD_REQUEST);
                     }
                 }
-                return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.INVALID_DATA), HttpStatus.BAD_REQUEST);
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.UNAUTHORIZED_ACCESS), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private boolean validateCategoryMap(Map<String, String> requestMap, boolean validateId) {
