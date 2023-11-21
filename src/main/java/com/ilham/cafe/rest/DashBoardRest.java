@@ -10,5 +10,5 @@ import java.util.Map;
 public interface DashBoardRest {
 
     @GetMapping(path = "/details")
-    ResponseEntity<Map<String,Object>> getCount();
+    ResponseEntity<Map<String, Object>> getCount();
 }

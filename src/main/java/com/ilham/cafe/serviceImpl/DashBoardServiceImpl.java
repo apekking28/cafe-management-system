@@ -26,8 +26,8 @@ public class DashBoardServiceImpl implements DashBoardService {
 
     @Override
     public ResponseEntity<Map<String, Object>> getCount() {
-        Map<String,Object> map = new HashMap<>();
-        map.put("category",categoryDao.count());
+        Map<String, Object> map = new HashMap<>();
+        map.put("category", categoryDao.count());
         map.put("product", productDao.count());
         map.put("bill", billDao.count());
         return new ResponseEntity<>(map, HttpStatus.OK);

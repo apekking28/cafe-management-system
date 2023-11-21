@@ -1,6 +1,7 @@
 package com.ilham.cafe.restImpl;
 
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
+import com.ilham.cafe.dto.ProductResponseDTO;
 import com.ilham.cafe.rest.ProductRest;
 import com.ilham.cafe.service.ProductService;
 import com.ilham.cafe.utils.CafeUtils;
@@ -21,13 +22,13 @@ public class ProductRestImpl implements ProductRest {
     ProductService productService;
 
     @Override
-    public ResponseEntity<String> addNewProduct(Map<String, String> requestMap) {
+    public ResponseEntity<ProductResponseDTO> addNewProduct(Map<String, String> requestMap) {
         try {
             return productService.addNewProduct(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ProductResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -41,33 +42,33 @@ public class ProductRestImpl implements ProductRest {
     }
 
     @Override
-    public ResponseEntity<String> updateProdduct(Map<String, String> requestMap) {
+    public ResponseEntity<ProductResponseDTO> updateProdduct(Map<String, String> requestMap) {
         try {
-            return productService.updateProdduct(requestMap);
+            return productService.updateProduct(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ProductResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> deleteProduct(Integer id) {
+    public ResponseEntity<ProductResponseDTO> deleteProduct(Integer id) {
         try {
-            return productService.deleteProdut(id);
+            return productService.deleteProduct(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ProductResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
+    public ResponseEntity<ProductResponseDTO> updateStatus(Map<String, String> requestMap) {
         try {
             return productService.updateStatus(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ProductResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

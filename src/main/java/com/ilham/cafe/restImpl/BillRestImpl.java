@@ -1,7 +1,8 @@
 package com.ilham.cafe.restImpl;
 
 import com.ilham.cafe.POJO.Bill;
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
+import com.ilham.cafe.dto.BillResponseDTO;
 import com.ilham.cafe.rest.BillRest;
 import com.ilham.cafe.service.BillService;
 import com.ilham.cafe.utils.CafeUtils;
@@ -21,23 +22,23 @@ public class BillRestImpl implements BillRest {
     BillService billService;
 
     @Override
-    public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
+    public ResponseEntity<BillResponseDTO> generateReport(Map<String, Object> requestMap) {
         try {
             return billService.generateReport(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new BillResponseDTO(CafeConstants.SOMETHING_WENT_WRONG, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
     public ResponseEntity<List<Bill>> getBills() {
         try {
-           return billService.getBills();
+            return billService.getBills();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<List<Bill>>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<List<Bill>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -51,12 +52,12 @@ public class BillRestImpl implements BillRest {
     }
 
     @Override
-    public ResponseEntity<String> deleteBill(Integer id) {
+    public ResponseEntity<BillResponseDTO> deleteBill(Integer id) {
         try {
             return billService.deleteBill(id);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new BillResponseDTO(CafeConstants.SOMETHING_WENT_WRONG, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

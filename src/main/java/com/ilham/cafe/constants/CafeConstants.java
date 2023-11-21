@@ -1,4 +1,4 @@
-package com.ilham.cafe.constents;
+package com.ilham.cafe.constants;
 
 public class CafeConstants {
 

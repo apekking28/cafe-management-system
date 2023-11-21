@@ -1,6 +1,7 @@
 package com.ilham.cafe.rest;
 
 import com.ilham.cafe.POJO.Bill;
+import com.ilham.cafe.dto.BillResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,15 +12,14 @@ import java.util.Map;
 public interface BillRest {
 
     @PostMapping(path = "/generateReport")
-    ResponseEntity<String>generateReport(@RequestBody Map<String,Object> requestMap);
-
+    ResponseEntity<BillResponseDTO> generateReport(@RequestBody Map<String, Object> requestMap);
 
     @GetMapping(path = "/getBills")
     ResponseEntity<List<Bill>> getBills();
 
     @PostMapping(path = "/getPdf")
-    ResponseEntity<byte[]> getPdf(@RequestBody Map<String,Object> requestMap);
+    ResponseEntity<byte[]> getPdf(@RequestBody Map<String, Object> requestMap);
 
     @PostMapping(path = "/delete/{id}")
-    ResponseEntity<String> deleteBill(@PathVariable Integer id);
+    ResponseEntity<BillResponseDTO> deleteBill(@PathVariable Integer id);
 }

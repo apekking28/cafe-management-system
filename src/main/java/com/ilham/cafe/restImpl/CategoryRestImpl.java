@@ -1,7 +1,8 @@
 package com.ilham.cafe.restImpl;
 
 import com.ilham.cafe.POJO.Category;
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
+import com.ilham.cafe.dto.CategoryResponseDTO;
 import com.ilham.cafe.rest.CategoryRest;
 import com.ilham.cafe.service.CategoryService;
 import com.ilham.cafe.utils.CafeUtils;
@@ -21,13 +22,13 @@ public class CategoryRestImpl implements CategoryRest {
     CategoryService categoryService;
 
     @Override
-    public ResponseEntity<String> addNewCategory(Map<String, String> requestMap) {
+    public ResponseEntity<CategoryResponseDTO> addNewCategory(Map<String, String> requestMap) {
         try {
             return categoryService.addNewCategory(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -37,16 +38,16 @@ public class CategoryRestImpl implements CategoryRest {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>(new ArrayList<>(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> updateCategory(Map<String, String> requestMap) {
+    public ResponseEntity<CategoryResponseDTO> updateCategory(Map<String, String> requestMap) {
         try {
             return categoryService.updateCategory(requestMap);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new CategoryResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,5 +1,7 @@
 package com.ilham.cafe.rest;
 
+import com.ilham.cafe.dto.AuthResponseDTO;
+import com.ilham.cafe.dto.LoginResponseDTO;
 import com.ilham.cafe.wrapper.UserWrapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,24 +15,23 @@ import java.util.Map;
 @RequestMapping(path = "/user")
 public interface UserRest {
     @PostMapping(path = "/signup")
-    public ResponseEntity<String> signUp(@RequestBody(required = true) Map<String, String> requestMap);
+    public ResponseEntity<AuthResponseDTO> signUp(@RequestBody(required = true) Map<String, String> requestMap);
 
     @PostMapping(path = "/login")
-    public ResponseEntity<String> login(@RequestBody(required = true) Map<String, String> requestMap);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody(required = true) Map<String, String> requestMap);
 
     @GetMapping(path = "/get")
     public ResponseEntity<List<UserWrapper>> getAllUser();
 
     @PostMapping(path = "/update")
-    public ResponseEntity<String> update(@RequestBody(required = true) Map<String, String> requestMap);
+    public ResponseEntity<AuthResponseDTO> update(@RequestBody(required = true) Map<String, String> requestMap);
 
     @GetMapping(path = "checkToken")
-    public ResponseEntity<String> checkToken();
+    public ResponseEntity<AuthResponseDTO> checkToken();
 
     @PostMapping(path = "changePassword")
-    ResponseEntity<String> changePassword(@RequestBody Map<String, String> requestMap);
-
+    ResponseEntity<AuthResponseDTO> changePassword(@RequestBody Map<String, String> requestMap);
 
     @PostMapping(path = "/forgotPassword")
-    ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> requestMap);
+    ResponseEntity<AuthResponseDTO> forgotPassword(@RequestBody Map<String, String> requestMap);
 }

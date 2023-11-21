@@ -1,5 +1,7 @@
 package com.ilham.cafe.service;
 
+import com.ilham.cafe.dto.AuthResponseDTO;
+import com.ilham.cafe.dto.LoginResponseDTO;
 import com.ilham.cafe.wrapper.UserWrapper;
 import org.springframework.http.ResponseEntity;
 
@@ -8,17 +10,17 @@ import java.util.Map;
 
 public interface UserService {
 
-    ResponseEntity<String> signUp(Map<String, String> requestMap);
+    ResponseEntity<AuthResponseDTO> signUp(Map<String, String> requestMap);
 
-    ResponseEntity<String> login(Map<String, String> requestMap);
+    ResponseEntity<LoginResponseDTO> login(Map<String, String> requestMap);
 
     ResponseEntity<List<UserWrapper>> getAllUser();
 
-    ResponseEntity<String> update(Map<String, String> requestMap);
+    ResponseEntity<AuthResponseDTO> update(Map<String, String> requestMap);
 
-    ResponseEntity<String> checkToken();
+    ResponseEntity<AuthResponseDTO> checkToken();
 
-    ResponseEntity<String> changePassword(Map<String, String> requestMap);
+    ResponseEntity<AuthResponseDTO> changePassword(Map<String, String> requestMap);
 
-    ResponseEntity<String> forgotPassword(Map<String, String> requestMap);
+    ResponseEntity<AuthResponseDTO> forgotPassword(Map<String, String> requestMap);
 }

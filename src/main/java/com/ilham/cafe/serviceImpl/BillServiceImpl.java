@@ -2,8 +2,9 @@ package com.ilham.cafe.serviceImpl;
 
 import com.ilham.cafe.JWT.JwtFilter;
 import com.ilham.cafe.POJO.Bill;
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
 import com.ilham.cafe.dao.BillDao;
+import com.ilham.cafe.dto.BillResponseDTO;
 import com.ilham.cafe.service.BillService;
 import com.ilham.cafe.utils.CafeUtils;
 import com.itextpdf.text.*;
@@ -37,7 +38,7 @@ public class BillServiceImpl implements BillService {
     BillDao billDao;
 
     @Override
-    public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
+    public ResponseEntity<BillResponseDTO> generateReport(Map<String, Object> requestMap) {
         log.info("Inside generateReport");
         try {
             String fileName;
@@ -80,13 +81,15 @@ public class BillServiceImpl implements BillService {
                 document.add(footer);
                 document.close();
 
-                return new ResponseEntity<>("{\"uuid\":\"" + fileName + "\"}", HttpStatus.OK);
+                return new ResponseEntity<>(new BillResponseDTO(
+                        "Successfully generated bill",
+                        fileName), HttpStatus.OK);
             }
-            return CafeUtils.getResponseEntity("Required data not found.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new BillResponseDTO("Required data not found.", null), HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new BillResponseDTO(CafeConstants.SOMETHING_WENT_WRONG, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -98,11 +101,11 @@ public class BillServiceImpl implements BillService {
             } else {
                 list = billDao.getBillByUserName(jwtFilter.getCurrentUser());
             }
-            return new ResponseEntity<>(list,HttpStatus.OK);
+            return new ResponseEntity<>(list, HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>(list,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(list, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -111,14 +114,14 @@ public class BillServiceImpl implements BillService {
         try {
             byte[] byteArray = new byte[0];
             if (!requestMap.containsKey("uuid") && validateRequestMap(requestMap)) {
-                return new ResponseEntity<>(byteArray,HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
             }
             String filePath = CafeConstants.STORE_LOCATION + "\\" + (String) requestMap.get("uuid") + ".pdf";
             if (CafeUtils.isFileExist(filePath)) {
                 byteArray = getByteArray(filePath);
-                return new ResponseEntity<>(byteArray,HttpStatus.OK);
+                return new ResponseEntity<>(byteArray, HttpStatus.OK);
             } else {
-                requestMap.put("isGenerate",false);
+                requestMap.put("isGenerate", false);
                 generateReport(requestMap);
                 byteArray = getByteArray(filePath);
                 return new ResponseEntity<>(byteArray, HttpStatus.OK);
@@ -131,18 +134,18 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public ResponseEntity<String> deleteBill(Integer id) {
+    public ResponseEntity<BillResponseDTO> deleteBill(Integer id) {
         try {
             Optional<Bill> optional = billDao.findById(id);
             if (!optional.isEmpty()) {
                 billDao.deleteById(id);
-                return CafeUtils.getResponseEntity("Bill Deleted Successfully",HttpStatus.OK);
+                return new ResponseEntity<>(new BillResponseDTO("Bill Deleted Successfully", null), HttpStatus.OK);
             }
-            return CafeUtils.getResponseEntity("Bill id does not exist",HttpStatus.OK);
+            return new ResponseEntity<>(new BillResponseDTO("Bill id does not exist", null), HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new BillResponseDTO(CafeConstants.SOMETHING_WENT_WRONG, null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private byte[] getByteArray(String filePath) throws Exception {
@@ -173,7 +176,6 @@ public class BillServiceImpl implements BillService {
     }
 
 
-
     private void addTableHeader(PdfPTable table) {
         log.info("Inside addTableHeader");
         Stream.of("Name", "Category", "Quantity", "Price", "Sub total")
@@ -196,7 +198,7 @@ public class BillServiceImpl implements BillService {
                 headerFont.setStyle(Font.BOLD);
                 return headerFont;
             case "Data":
-                Font dataFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, BaseColor.BLACK.darker()   );
+                Font dataFont = FontFactory.getFont(FontFactory.TIMES_ROMAN, 11, BaseColor.BLACK.darker());
                 dataFont.setStyle(Font.BOLD);
                 return dataFont;
             default:

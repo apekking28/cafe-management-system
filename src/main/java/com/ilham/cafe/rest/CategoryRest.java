@@ -1,6 +1,7 @@
 package com.ilham.cafe.rest;
 
 import com.ilham.cafe.POJO.Category;
+import com.ilham.cafe.dto.CategoryResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +12,11 @@ import java.util.Map;
 public interface CategoryRest {
 
     @PostMapping(path = "/add")
-    ResponseEntity<String> addNewCategory(@RequestBody(required = true)Map<String,String> requestMap);
+    ResponseEntity<CategoryResponseDTO> addNewCategory(@RequestBody(required = true) Map<String, String> requestMap);
 
     @GetMapping(path = "/get")
     ResponseEntity<List<Category>> getAllCategory(@RequestParam(required = false) String filterValue);
 
     @PostMapping(path = "/update")
-    ResponseEntity<String> updateCategory(@RequestBody(required = true)Map<String,String> requestMap);
+    ResponseEntity<CategoryResponseDTO> updateCategory(@RequestBody(required = true) Map<String, String> requestMap);
 }

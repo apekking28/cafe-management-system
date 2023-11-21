@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.File;
 import java.util.*;
+
 @Slf4j
 public class CafeUtils {
 
@@ -34,8 +35,8 @@ public class CafeUtils {
     }
 
     public static Map<String, Object> getMapFromJson(String data) {
-        if(Strings.isNullOrEmpty(data)) {
-            return new Gson().fromJson(data, new TypeToken<Map<String,Object>>(){
+        if (Strings.isNullOrEmpty(data)) {
+            return new Gson().fromJson(data, new TypeToken<Map<String, Object>>() {
             }.getType());
         }
 
@@ -43,9 +44,9 @@ public class CafeUtils {
     }
 
     public static Boolean isFileExist(String path) {
-        log.info("Inside isFileExist {}",path);
+        log.info("Inside isFileExist {}", path);
         try {
-            File file   = new File(path);
+            File file = new File(path);
             return (file != null && file.exists()) ? Boolean.TRUE : Boolean.FALSE;
         } catch (Exception ex) {
             ex.printStackTrace();

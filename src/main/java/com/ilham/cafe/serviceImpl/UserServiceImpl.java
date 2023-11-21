@@ -5,10 +5,11 @@ import com.ilham.cafe.JWT.CustomerUserDetailsService;
 import com.ilham.cafe.JWT.JwtFilter;
 import com.ilham.cafe.JWT.JwtUtil;
 import com.ilham.cafe.POJO.User;
-import com.ilham.cafe.constents.CafeConstants;
+import com.ilham.cafe.constants.CafeConstants;
 import com.ilham.cafe.dao.UserDao;
+import com.ilham.cafe.dto.AuthResponseDTO;
+import com.ilham.cafe.dto.LoginResponseDTO;
 import com.ilham.cafe.service.UserService;
-import com.ilham.cafe.utils.CafeUtils;
 import com.ilham.cafe.utils.EmailUtils;
 import com.ilham.cafe.wrapper.UserWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -45,28 +46,28 @@ public class UserServiceImpl implements UserService {
     EmailUtils emailUtils;
 
     @Override
-    public ResponseEntity<String> signUp(Map<String, String> requestMap) {
+    public ResponseEntity<AuthResponseDTO> signUp(Map<String, String> requestMap) {
         log.info("Inside signup {}", requestMap);
         try {
             if (validateSignUpMap(requestMap)) {
                 User user = userDao.findByEmailId(requestMap.get("email"));
                 if (Objects.isNull(user)) {
                     userDao.save(getUserFromMap(requestMap));
-                    return CafeUtils.getResponseEntity("Successfully Registered.", HttpStatus.OK);
+                    return new ResponseEntity<>(new AuthResponseDTO("Successfully Registered."), HttpStatus.OK);
                 } else {
-                    return CafeUtils.getResponseEntity("Email already exits.", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(new AuthResponseDTO("Email already exits."), HttpStatus.BAD_REQUEST);
                 }
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.INVALID_DATA), HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> login(Map<String, String> requestMap) {
+    public ResponseEntity<LoginResponseDTO> login(Map<String, String> requestMap) {
         log.info("Inside login");
         try {
             Authentication auth = authenticationManager.authenticate(
@@ -75,18 +76,23 @@ public class UserServiceImpl implements UserService {
 
             if (auth.isAuthenticated()) {
                 if (customerUserDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")) {
-                    return new ResponseEntity<String>("{\"token\":\"" +
-                            jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(),
-                                    customerUserDetailsService.getUserDetail().getRole()) + "\"}",
+                    return new ResponseEntity<>(new LoginResponseDTO(
+                            "Successfully login"
+                            , jwtUtil.generateToken(customerUserDetailsService.getUserDetail().getEmail(), customerUserDetailsService.getUserDetail().getRole())),
                             HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<String>("{\"message:\"" + "Wait for admin approval\"}", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(new LoginResponseDTO(
+                            "Wait for admin approval",
+                            null),
+                            HttpStatus.OK);
                 }
             }
         } catch (Exception ex) {
             log.error("{}", ex);
         }
-        return new ResponseEntity<String>("{\"message:\"" + "Bad Credentials.\"}",
+        return new ResponseEntity<>(new LoginResponseDTO(
+                "Bad Credential",
+                null),
                 HttpStatus.BAD_REQUEST);
     }
 
@@ -106,64 +112,63 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> update(Map<String, String> requestMap) {
+    public ResponseEntity<AuthResponseDTO> update(Map<String, String> requestMap) {
         try {
             if (jwtFilter.isAdmin()) {
                 Optional<User> optional = userDao.findById(Integer.parseInt(requestMap.get("id")));
                 if (!optional.isEmpty()) {
                     userDao.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
                     sendEmailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userDao.getAllAdmin());
-                    return CafeUtils.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
+                    return new ResponseEntity<>(new AuthResponseDTO("User Status Updated Successfully"), HttpStatus.OK);
                 } else {
-                    return CafeUtils.getResponseEntity("User id doesnt not exist", HttpStatus.OK);
+                    return new ResponseEntity<>(new AuthResponseDTO("User id doesnt not exist"), HttpStatus.BAD_REQUEST);
                 }
             } else {
-                return CafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.UNAUTHORIZED_ACCESS), HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-
+        return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> checkToken() {
-        return CafeUtils.getResponseEntity("true", HttpStatus.OK);
+    public ResponseEntity<AuthResponseDTO> checkToken() {
+        return new ResponseEntity<>(new AuthResponseDTO("true"), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
+    public ResponseEntity<AuthResponseDTO> changePassword(Map<String, String> requestMap) {
         try {
             User userObj = userDao.findByEmail(jwtFilter.getCurrentUser());
             if (!userObj.equals(null)) {
                 if (userObj.getPassword().equals(requestMap.get("oldPassword"))) {
                     userObj.setPassword(requestMap.get("newPassword"));
                     userDao.save(userObj);
-                    return CafeUtils.getResponseEntity("Password Updated Successfully", HttpStatus.OK);
+                    return new ResponseEntity<>(new AuthResponseDTO("Password Updated Successfully"), HttpStatus.OK);
                 }
-                return CafeUtils.getResponseEntity("Incorrect Old Password", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new AuthResponseDTO("Incorrect Old Password"), HttpStatus.BAD_REQUEST);
             }
-            return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+    public ResponseEntity<AuthResponseDTO> forgotPassword(Map<String, String> requestMap) {
         try {
             User user = userDao.findByEmail(requestMap.get("email"));
             if (!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail())) {
                 System.out.println(user);
                 emailUtils.forgotMail(user.getEmail(), "Credentials by Cafe Management System", user.getPassword());
-                return CafeUtils.getResponseEntity("Check your mail for Credentials.", HttpStatus.OK);
+                return new ResponseEntity<>(new AuthResponseDTO("Check your mail for Credentials."), HttpStatus.OK);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return CafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new AuthResponseDTO(CafeConstants.SOMETHING_WENT_WRONG), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void sendEmailToAllAdmin(String status, String user, List<String> allAdmin) {
